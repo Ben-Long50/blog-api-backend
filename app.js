@@ -3,35 +3,34 @@ import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-
 import mongoose from 'mongoose';
-import indexRouter from './routes/index.js';
+import cors from 'cors';
+import authRouter from './routes/authentication.js';
+import postsRouter from './routes/posts.js';
 import usersRouter from './routes/users.js';
 
-const __dirname = import.meta.dirname;
-
 const app = express();
-mongoose.set('strictQuery', false);
-const mongoDB =
-  'mongodb+srv://Ben_Long:7skFOfMMxEQz6mwz@cluster0.xp4dg26.mongodb.net/local_library?retryWrites=true&w=majority&appName=Cluster0';
 
-main().catch((err) => console.log(err));
-async function main() {
-  await mongoose.connect(mongoDB);
-}
+const mongoDb =
+  process.env.DATABASE_URL ||
+  'mongodb+srv://benjlong50:JKga95hMq5a425Xx@cluster0.tgg7uov.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+mongoose.connect(mongoDb);
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'mongo connection error'));
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(import.meta.dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.options('/signup', cors());
+app.options('/login', cors());
+app.options('/posts', cors());
+app.use('/', authRouter);
+app.use('/', postsRouter);
+app.use('/', usersRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -46,7 +45,7 @@ app.use((err, req, res, next) => {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.json('error');
 });
 
 export default app;
