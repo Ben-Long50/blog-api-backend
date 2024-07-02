@@ -28,6 +28,7 @@ app.use(express.static(path.join(import.meta.dirname, 'public')));
 app.options('/signup', cors());
 app.options('/login', cors());
 app.options('/posts', cors());
+app.options('/posts/:postId', cors());
 app.use('/', authRouter);
 app.use('/', postsRouter);
 app.use('/', usersRouter);

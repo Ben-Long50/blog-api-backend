@@ -12,12 +12,6 @@ router.get(
   postController.listPosts,
 );
 
-router.get(
-  '/posts/:postId',
-  authController.verifyToken,
-  postController.showPost,
-);
-
 router.post(
   '/posts',
   cors(),
@@ -25,10 +19,16 @@ router.post(
   postController.createPost,
 );
 
-// router.put('/posts/:postId', postController);
+router.put(
+  '/posts/:postId',
+  cors(),
+  authController.verifyToken,
+  postController.updatePostDraft,
+);
 
 router.delete(
   '/posts/:postId',
+  cors(),
   authController.verifyToken,
   postController.deletePost,
 );
