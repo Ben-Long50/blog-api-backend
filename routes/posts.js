@@ -19,8 +19,15 @@ router.post(
   postController.createPost,
 );
 
-router.put(
+router.post(
   '/posts/:postId',
+  cors(),
+  authController.verifyToken,
+  postController.updatePost,
+);
+
+router.put(
+  '/posts/:postId/activity',
   cors(),
   authController.verifyToken,
   postController.updatePostDraft,

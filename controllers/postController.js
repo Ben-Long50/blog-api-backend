@@ -7,7 +7,7 @@ import User from '../models/user.js';
 
 const postController = {
   listPosts: asyncHandler(async (req, res) => {
-    const posts = await Post.find().sort({ dateUpdated: 1 });
+    const posts = await Post.find().sort({ dateUpdated: -1 });
     res.json(posts);
   }),
 
@@ -65,6 +65,60 @@ const postController = {
     }),
   ],
 
+  updatePost: [
+    upload.single('image'),
+    asyncHandler(async (req, res, next) => {
+      if (req.file) {
+        try {
+          const result = await cloudinary.uploader.upload(req.file.path);
+          req.imageURL = result.secure_url;
+        } catch (err) {
+          console.error(err);
+          return res.status(500).json({
+            success: false,
+            message: 'Error uploading to Cloudinary',
+          });
+        }
+      }
+      next();
+    }),
+    body('title', 'Title must not be empty.').trim().isLength({ min: 1 }),
+
+    body('mythos', 'Mythos must not be empty')
+      .trim()
+      .custom((value) => {
+        if (typeof value !== 'string') {
+          throw new Error('Value must be a string');
+        }
+        return value.charAt(0).toUpperCase() + value.slice(1);
+      }),
+
+    body('body', 'Blog body must be a minimum of 3 characters')
+      .trim()
+      .isLength({ min: 3 }),
+
+    asyncHandler(async (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({ errors: errors.array() });
+      } else {
+        const updatedData = {
+          title: req.body.title,
+          mythos: req.body.mythos,
+          image: req.imageURL ? req.imageURL : req.body.image,
+          body: req.body.body,
+          dateUpdated: new Date(),
+        };
+        const updatedPost = await Post.findByIdAndUpdate(
+          req.params.postId,
+          updatedData,
+          { new: true },
+        );
+        res.status(200).json(updatedPost);
+      }
+    }),
+  ],
+
   updatePostDraft: asyncHandler(async (req, res) => {
     try {
       const post = await Post.findById(req.params.postId);
@@ -85,7 +139,13 @@ const postController = {
   }),
 
   deletePost: asyncHandler(async (req, res) => {
-    await Post.findByIdAndDelete(req.params.postId);
+    try {
+      await Post.findByIdAndDelete(req.params.postId);
+      res.status(200).json({ message: 'Successfully deleted post' });
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      res.status(500).json({ message: 'Error deleting post' });
+    }
   }),
 };
 
