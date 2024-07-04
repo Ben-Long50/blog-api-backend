@@ -7,7 +7,9 @@ const router = express.Router();
 
 router.post('/signup', cors(), userController.createUser);
 
-router.post('/login', cors(), authController.adminLogin);
+router.post('admin/login', cors(), authController.adminLogin);
+
+router.post('users/login', cors(), authController.userLogin);
 
 // router.post('/logout', authController);
 

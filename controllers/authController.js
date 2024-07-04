@@ -60,6 +60,57 @@ const authController = {
     }),
   ],
 
+  userLogin: [
+    body('username', 'Username does not exist')
+      .trim()
+      .escape()
+      .custom(async (value) => {
+        const user = await User.findOne({ username: value });
+        if (!user) {
+          throw new Error('Username does not exist');
+        }
+        return true;
+      }),
+    body('password', 'Incorrect password')
+      .trim()
+      .escape()
+      .custom(async (value, { req }) => {
+        const user = await User.findOne({ username: req.body.username });
+        if (!user) {
+          return false;
+        }
+        const match = await bcrypt.compare(value, user.password);
+        if (!match) {
+          throw new Error('Incorrect password');
+        }
+
+        return true;
+      }),
+
+    asyncHandler(async (req, res, next) => {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        res.status(400).json(errors.array());
+      } else {
+        const user = await User.findOne({ username: req.body.username });
+        jwt.sign(
+          { user },
+          process.env.SESSION_KEY,
+          { expiresIn: '1h' },
+          (err, token) => {
+            if (err) {
+              res.status(500).json({ message: 'Error generating token' });
+            }
+            res.json({
+              token,
+            });
+          },
+        );
+      }
+    }),
+  ],
+
   verifyToken: (req, res, next) => {
     const bearerHeader = req.headers.authorization;
     if (typeof bearerHeader !== 'undefined') {
