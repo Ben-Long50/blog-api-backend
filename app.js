@@ -11,12 +11,11 @@ import usersRouter from './routes/users.js';
 
 const app = express();
 
-const mongoDb = process.env.DB_CONNECTION;
+const mongoDb =
+  process.env.DB_CONNECTION ||
+  `mongodb+srv://benjlong50:${process.env.DB_PW}@cluster0.tgg7uov.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
-mongoose.connect(mongoDb, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(mongoDb);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'mongo connection error'));
 
