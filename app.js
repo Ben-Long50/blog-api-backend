@@ -11,9 +11,7 @@ import usersRouter from './routes/users.js';
 
 const app = express();
 
-const mongoDb =
-  process.env.DATABASE_URL ||
-  'mongodb+srv://benjlong50:JKga95hMq5a425Xx@cluster0.tgg7uov.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const mongoDb = process.env.DATABASE_URL;
 
 mongoose.connect(mongoDb);
 const db = mongoose.connection;
