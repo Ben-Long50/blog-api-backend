@@ -13,7 +13,10 @@ const app = express();
 
 const mongoDb = process.env.DB_CONNECTION;
 
-mongoose.connect(mongoDb);
+mongoose.connect(mongoDb, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'mongo connection error'));
 
