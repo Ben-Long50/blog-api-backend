@@ -11,6 +11,17 @@ const postController = {
     res.json(posts);
   }),
 
+  listActivePosts: asyncHandler(async (req, res) => {
+    const posts = await Post.find({ draft: false })
+      .populate({
+        path: 'comments',
+        populate: { path: 'author' },
+      })
+      .populate('author')
+      .sort({ dateUpdated: -1 });
+    res.json(posts);
+  }),
+
   createPost: [
     upload.single('image'),
     asyncHandler(async (req, res, next) => {

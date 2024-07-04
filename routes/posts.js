@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import postController from '../controllers/postController.js';
 import authController from '../controllers/authController.js';
+import commentController from '../controllers/commentController.js';
 
 const router = express.Router();
 
@@ -11,6 +12,8 @@ router.get(
   authController.verifyToken,
   postController.listPosts,
 );
+
+router.get('/posts/active', cors(), postController.listActivePosts);
 
 router.post(
   '/posts',
@@ -31,6 +34,13 @@ router.put(
   cors(),
   authController.verifyToken,
   postController.updatePostDraft,
+);
+
+router.post(
+  '/posts/:postId/comments',
+  cors(),
+  authController.verifyToken,
+  commentController.createComment,
 );
 
 router.delete(
