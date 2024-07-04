@@ -43,14 +43,19 @@ const authController = {
         res.status(400).json(errors.array());
       } else {
         const user = await User.findOne({ username: req.body.username });
-        jwt.sign({ user }, 'cats', { expiresIn: '1h' }, (err, token) => {
-          if (err) {
-            res.status(500).json({ message: 'Error generating token' });
-          }
-          res.json({
-            token,
-          });
-        });
+        jwt.sign(
+          { user },
+          process.env.SESSION_KEY,
+          { expiresIn: '1h' },
+          (err, token) => {
+            if (err) {
+              res.status(500).json({ message: 'Error generating token' });
+            }
+            res.json({
+              token,
+            });
+          },
+        );
       }
     }),
   ],
