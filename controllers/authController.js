@@ -116,7 +116,7 @@ const authController = {
     if (typeof bearerHeader !== 'undefined') {
       const bearerToken = bearerHeader.split(' ')[1];
       req.token = bearerToken;
-      jwt.verify(req.token, 'cats', (err) => {
+      jwt.verify(req.token, process.env.SESSION_KEY, (err) => {
         if (err) {
           res.sendStatus(403);
         } else {
